@@ -1,24 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/sidebar';
 import Header from '../components/header';
 import Footer from '../components/footer';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { authAPI } from '../services/api';
 
-function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSidebarOpen }) {
+function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSidebarOpen, currentUser, setCurrentUser }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [editName, setEditName] = useState('Karthik Sai');
-    const [editEmail, setEditEmail] = useState('karthik09@gmail.com');
-    const [editPassword, setEditPassword] = useState('***********');
+    const [editName, setEditName] = useState('');
+    const [editEmail, setEditEmail] = useState('');
+    const [editPassword, setEditPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [saving, setSaving] = useState(false);
 
-    const handleSaveProfile = () => {
-        setIsEditing(false);
-        console.log('Profile saved:', { editName, editEmail, editPassword });
+    // Load user data when component mounts or currentUser changes
+    useEffect(() => {
+        if (currentUser) {
+            setEditName(currentUser.name || '');
+            setEditEmail(currentUser.email || '');
+            setEditPassword(currentUser.password || '');
+        }
+    }, [currentUser]);
+
+    const handleSaveProfile = async () => {
+        try {
+            setSaving(true);
+            // Save to backend
+            const updatedUser = await authAPI.updateUser(
+                currentUser.userId,
+                editName,
+                editEmail,
+                editPassword
+            );
+            // Update localStorage with new data
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+            setCurrentUser(updatedUser);
+            setIsEditing(false);
+            alert('Profile updated successfully!');
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert(`Failed to save profile: ${error.response?.data?.message || error.message}`);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleCancelProfile = () => {
         setIsEditing(false);
-        setEditName('Karthik Sai');
-        setEditEmail('karthik09@gmail.com');
-        setEditPassword('***********');
+        // Reset to current user data
+        if (currentUser) {
+            setEditName(currentUser.name || '');
+            setEditEmail(currentUser.email || '');
+            setEditPassword(currentUser.password || '');
+        }
     };
 
     return (
@@ -29,6 +63,7 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
                     currentPage="settings"
+                    currentUser={currentUser}
                     onNavigate={(page) => {
                         // Only close sidebar on mobile (screen width < 1024px)
                         if (window.innerWidth < 1024) {
@@ -49,8 +84,8 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                             />
 
                             <h1
-                                className={`text-3xl lg:text-4xl font-bold mb-8 lg:mb-12 ${darkMode ? 'text-white' : 'text-gray-800'
-                                    }`}
+                                className="text-3xl lg:text-4xl font-bold mb-8 lg:mb-12"
+                                style={{ color: darkMode ? '#FFFFFF' : '#1F41BB' }}
                             >
                                 Settings
                             </h1>
@@ -133,17 +168,26 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                                         >
                                             Password
                                         </label>
-                                        <input
-                                            type="password"
-                                            value={editPassword}
-                                            onChange={(e) => setEditPassword(e.target.value)}
-                                            disabled={!isEditing}
-                                            className={`w-full px-4 py-3 rounded-lg transition-all ${darkMode
-                                                ? 'bg-gray-700 text-white'
-                                                : 'bg-gray-100 text-gray-900'
-                                                } ${!isEditing && 'opacity-60 cursor-not-allowed'} ${isEditing && 'focus:outline-none focus:ring-2 focus:ring-blue-500'
-                                                }`}
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                value={editPassword}
+                                                onChange={(e) => setEditPassword(e.target.value)}
+                                                disabled={!isEditing}
+                                                className={`w-full px-4 py-3 pr-12 rounded-lg transition-all ${darkMode
+                                                    ? 'bg-gray-700 text-white'
+                                                    : 'bg-gray-100 text-gray-900'
+                                                    } ${!isEditing && 'opacity-60 cursor-not-allowed'} ${isEditing && 'focus:outline-none focus:ring-2 focus:ring-blue-500'
+                                                    }`}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${darkMode ? 'text-gray-400 hover:text-gray-300' : 'text-gray-500 hover:text-gray-700'} transition-colors`}
+                                            >
+                                                {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -151,19 +195,21 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                                     <div className="flex flex-col sm:flex-row gap-4 mt-8">
                                         <button
                                             onClick={handleSaveProfile}
+                                            disabled={saving}
                                             className={`px-6 py-2 rounded-lg transition-colors ${darkMode
                                                 ? 'bg-gray-700 text-white hover:bg-gray-600'
                                                 : 'bg-gray-600 text-white hover:bg-gray-700'
-                                                }`}
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                                         >
-                                            Save
+                                            {saving ? 'Saving...' : 'Save'}
                                         </button>
                                         <button
                                             onClick={handleCancelProfile}
+                                            disabled={saving}
                                             className={`px-6 py-2 rounded-lg transition-colors ${darkMode
                                                 ? 'bg-gray-700 text-white hover:bg-gray-600'
                                                 : 'bg-gray-500 text-white hover:bg-gray-600'
-                                                }`}
+                                                } disabled:opacity-50`}
                                         >
                                             Cancel
                                         </button>
@@ -172,7 +218,7 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
 
                                 <div className={`mt-8 pt-6 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                                     <p className={`text-sm text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                        Joined ToDo on 1 Jan 2026
+                                        Joined ToDo on {currentUser?.createdDate ? new Date(currentUser.createdDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
                                     </p>
                                 </div>
                             </div>

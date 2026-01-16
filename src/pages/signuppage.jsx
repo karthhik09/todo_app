@@ -1,10 +1,38 @@
 import React, { useState } from 'react';
 import Footer from "../components/footer";
+import { authAPI } from '../services/api';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-function SignupPage({ onNavigate }) {
+function SignupPage({ onNavigate, setCurrentUser }) {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleSignup = async () => {
+        if (!name || !email || !password) {
+            setError('Please fill in all fields');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const user = await authAPI.register(name, email, password);
+            // Store user data in localStorage
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            setCurrentUser(user);
+            // Auto-login after successful registration
+            onNavigate('dashboard');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
@@ -24,6 +52,13 @@ function SignupPage({ onNavigate }) {
                         Create an account here!
                     </p>
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl text-sm">
+                            {error}
+                        </div>
+                    )}
+
                     {/* Form Fields */}
                     <div className="px-4">
                         <div className="mb-12">
@@ -32,7 +67,8 @@ function SignupPage({ onNavigate }) {
                                 placeholder="Name"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-6 py-4 mb-6 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block"
+                                disabled={loading}
+                                className="w-full px-6 py-4 mb-6 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block disabled:opacity-50"
                             />
 
                             <input
@@ -40,30 +76,44 @@ function SignupPage({ onNavigate }) {
                                 placeholder="sample@mail.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full px-6 py-4 mb-6 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block"
+                                disabled={loading}
+                                className="w-full px-6 py-4 mb-6 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block disabled:opacity-50"
                             />
 
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-6 py-4 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleSignup()}
+                                    disabled={loading}
+                                    className="w-full px-6 py-4 pr-12 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base block disabled:opacity-50"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 transition-colors"
+                                >
+                                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                </button>
+                            </div>
                         </div>
 
                         {/* Buttons */}
                         <button
-                            onClick={() => onNavigate('dashboard')}
-                            className="w-full py-4 text-white text-base font-semibold rounded-xl mb-6 hover:opacity-90 transition-opacity shadow-md"
+                            onClick={handleSignup}
+                            disabled={loading}
+                            className="w-full py-4 text-white text-base font-semibold rounded-xl mb-6 hover:opacity-90 transition-opacity shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ backgroundColor: '#1F41BB' }}
                         >
-                            Create
+                            {loading ? 'Creating account...' : 'Create'}
                         </button>
 
                         <button
                             onClick={() => onNavigate('login')}
-                            className="w-full text-gray-700 text-base font-semibold hover:text-blue-600 transition-colors py-2"
+                            disabled={loading}
+                            className="w-full text-gray-700 text-base font-semibold hover:text-blue-600 transition-colors py-2 disabled:opacity-50"
                         >
                             Login to existing account
                         </button>

@@ -1,43 +1,106 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/sidebar';
 import Header from '../components/header';
 import Footer from '../components/footer';
 import TaskList from '../components/tasklist';
 import useGreeting from '../hooks/greetings';
+import { tasksAPI } from '../services/api';
 
-function DashboardPage({ tasks, setTasks, darkMode, setDarkMode, onNavigate, sidebarOpen, setSidebarOpen }) {
+function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSidebarOpen, currentUser }) {
+    const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState('');
     const [filter, setFilter] = useState('all');
+    const [loading, setLoading] = useState(true);
+    const [addingTask, setAddingTask] = useState(false);
     const greeting = useGreeting();
 
-    const addTask = () => {
-        if (newTask.trim()) {
-            setTasks([
-                ...tasks,
-                { id: Date.now(), text: newTask, completed: false }
-            ]);
-            setNewTask('');
+    // Fetch tasks from backend on component mount
+    useEffect(() => {
+        fetchTasks();
+    }, []);
+
+    const fetchTasks = async () => {
+        try {
+            setLoading(true);
+            const tasksData = await tasksAPI.getTasks(currentUser?.userId);
+            // Map backend response to frontend format
+            const mappedTasks = tasksData.map(task => ({
+                id: task.taskId,
+                text: task.title,
+                completed: task.status
+            }));
+            setTasks(mappedTasks);
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const toggleTask = (id) => {
-        setTasks(
-            tasks.map((task) =>
-                task.id === id ? { ...task, completed: !task.completed } : task
-            )
-        );
+    const addTask = async () => {
+        if (newTask.trim()) {
+            try {
+                setAddingTask(true);
+                console.log('Attempting to add task:', newTask.trim());
+                const task = await tasksAPI.addTask(newTask.trim(), false, currentUser?.userId);
+                console.log('Task added successfully:', task);
+                // Add new task to the list
+                setTasks([
+                    ...tasks,
+                    { id: task.taskId, text: task.title, completed: task.status }
+                ]);
+                setNewTask('');
+            } catch (error) {
+                console.error('Error adding task:', error);
+                console.error('Error response:', error.response?.data);
+                console.error('Error status:', error.response?.status);
+                console.error('Error message:', error.message);
+                alert(`Failed to add task. Error: ${error.response?.data?.message || error.message}`);
+            } finally {
+                setAddingTask(false);
+            }
+        }
     };
 
-    const deleteTask = (id) => {
-        setTasks(tasks.filter((task) => task.id !== id));
+    const toggleTask = async (id) => {
+        try {
+            await tasksAPI.toggleTask(id);
+            // Update local state
+            setTasks(
+                tasks.map((task) =>
+                    task.id === id ? { ...task, completed: !task.completed } : task
+                )
+            );
+        } catch (error) {
+            console.error('Error toggling task:', error);
+            alert('Failed to update task. Please try again.');
+        }
     };
 
-    const updateTask = (id, newText) => {
-        setTasks(
-            tasks.map((task) =>
-                task.id === id ? { ...task, text: newText } : task
-            )
-        );
+    const deleteTask = async (id) => {
+        try {
+            await tasksAPI.deleteTask(id);
+            // Remove from local state
+            setTasks(tasks.filter((task) => task.id !== id));
+        } catch (error) {
+            console.error('Error deleting task:', error);
+            alert('Failed to delete task. Please try again.');
+        }
+    };
+
+    const updateTask = async (id, newText) => {
+        try {
+            await tasksAPI.updateTask(id, newText);
+            // Update local state
+            setTasks(
+                tasks.map((task) =>
+                    task.id === id ? { ...task, text: newText } : task
+                )
+            );
+        } catch (error) {
+            console.error('Error updating task:', error);
+            alert('Failed to update task. Please try again.');
+        }
     };
 
     const getFilteredTasks = () => {
@@ -54,6 +117,7 @@ function DashboardPage({ tasks, setTasks, darkMode, setDarkMode, onNavigate, sid
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
                     currentPage="dashboard"
+                    currentUser={currentUser}
                     onNavigate={(page) => {
                         // Only close sidebar on mobile (screen width < 1024px)
                         if (window.innerWidth < 1024) {
@@ -95,18 +159,20 @@ function DashboardPage({ tasks, setTasks, darkMode, setDarkMode, onNavigate, sid
                                         placeholder="Type your task here.."
                                         value={newTask}
                                         onChange={(e) => setNewTask(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && addTask()}
+                                        onKeyPress={(e) => e.key === 'Enter' && !addingTask && addTask()}
+                                        disabled={addingTask}
                                         className={`flex-1 px-4 py-3 rounded-lg ${darkMode
                                             ? 'bg-gray-800 text-white placeholder-gray-400 border border-gray-700'
                                             : 'bg-white text-gray-900 border border-gray-200'
-                                            } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                            } focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50`}
                                     />
                                     <button
                                         onClick={addTask}
-                                        className="px-6 py-3 text-white font-semibold rounded-lg transition-all hover:opacity-90"
+                                        disabled={addingTask}
+                                        className="px-6 py-3 text-white font-semibold rounded-lg transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                                         style={{ backgroundColor: '#1F41BB' }}
                                     >
-                                        + Add
+                                        {addingTask ? 'Adding...' : '+ Add'}
                                     </button>
                                 </div>
 
@@ -159,13 +225,20 @@ function DashboardPage({ tasks, setTasks, darkMode, setDarkMode, onNavigate, sid
                                     </button>
                                 </div>
 
-                                <TaskList
-                                    tasks={getFilteredTasks()}
-                                    darkMode={darkMode}
-                                    onToggle={toggleTask}
-                                    onDelete={deleteTask}
-                                    onUpdate={updateTask}
-                                />
+                                {/* Loading State */}
+                                {loading ? (
+                                    <div className={`text-center py-12 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                        Loading tasks...
+                                    </div>
+                                ) : (
+                                    <TaskList
+                                        tasks={getFilteredTasks()}
+                                        darkMode={darkMode}
+                                        onToggle={toggleTask}
+                                        onDelete={deleteTask}
+                                        onUpdate={updateTask}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>

@@ -3,7 +3,7 @@ import { MdChecklist, MdSettings, MdLogout } from 'react-icons/md';
 import { FiMenu } from "react-icons/fi";
 import { IoClose } from 'react-icons/io5';
 
-function Sidebar({ darkMode, sidebarOpen, setSidebarOpen, currentPage, onNavigate }) {
+function Sidebar({ darkMode, sidebarOpen, setSidebarOpen, currentPage, onNavigate, currentUser }) {
     return (
         <>
             {/* Overlay for mobile - only show when sidebar is expanded on mobile */}
@@ -40,10 +40,10 @@ function Sidebar({ darkMode, sidebarOpen, setSidebarOpen, currentPage, onNavigat
                                 className={`font-bold text-lg mb-1 ${darkMode ? 'text-white' : 'text-gray-800'
                                     }`}
                             >
-                                Karthik Sai
+                                {currentUser?.name || 'User'}
                             </h2>
                             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                karthik09@gmail.com
+                                {currentUser?.email || 'user@example.com'}
                             </p>
                         </div>
                     )}
@@ -83,7 +83,11 @@ function Sidebar({ darkMode, sidebarOpen, setSidebarOpen, currentPage, onNavigat
                         </button>
 
                         <button
-                            onClick={() => onNavigate('login')}
+                            onClick={() => {
+                                // Clear user data on logout
+                                localStorage.removeItem('currentUser');
+                                onNavigate('login');
+                            }}
                             className={`w-full flex items-center ${sidebarOpen ? 'space-x-3 px-4' : 'justify-center px-2'} py-3 rounded-lg transition-colors ${darkMode
                                 ? 'text-gray-300 hover:bg-gray-700'
                                 : 'text-gray-700 hover:bg-gray-100'
