@@ -60,20 +60,20 @@ function NotificationPanel({ darkMode, notifications, onClose, onDelete, onMarkA
                     notifications.map((notification) => (
                         <div
                             key={notification.notificationId}
-                            className={`px-4 py-3 transition-colors ${!notification.read
-                                    ? darkMode
-                                        ? 'bg-gray-750 hover:bg-gray-700'
-                                        : 'bg-blue-50 hover:bg-blue-100'
-                                    : darkMode
-                                        ? 'hover:bg-gray-700'
-                                        : 'hover:bg-gray-50'
+                            className={`px-4 py-3 transition-colors ${!notification.isRead
+                                ? darkMode
+                                    ? 'bg-gray-750 hover:bg-gray-700'
+                                    : 'bg-blue-50 hover:bg-blue-100'
+                                : darkMode
+                                    ? 'hover:bg-gray-700'
+                                    : 'hover:bg-gray-50'
                                 }`}
-                            onClick={() => !notification.read && onMarkAsRead(notification.notificationId)}
+                            onClick={() => !notification.isRead && onMarkAsRead(notification.notificationId)}
                         >
                             <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
                                     <p className={`text-sm ${darkMode ? 'text-gray-200' : 'text-gray-800'
-                                        } ${!notification.read ? 'font-semibold' : ''}`}>
+                                        } ${!notification.isRead ? 'font-semibold' : ''}`}>
                                         {notification.message}
                                     </p>
                                     <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'
@@ -87,8 +87,8 @@ function NotificationPanel({ darkMode, notifications, onClose, onDelete, onMarkA
                                         onDelete(notification.notificationId);
                                     }}
                                     className={`p-1 rounded-lg transition-colors flex-shrink-0 ${darkMode
-                                            ? 'hover:bg-gray-600 text-gray-400 hover:text-gray-200'
-                                            : 'hover:bg-gray-200 text-gray-500 hover:text-gray-700'
+                                        ? 'hover:bg-gray-600 text-gray-400 hover:text-gray-200'
+                                        : 'hover:bg-gray-200 text-gray-500 hover:text-gray-700'
                                         }`}
                                     aria-label="Delete notification"
                                 >

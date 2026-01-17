@@ -59,7 +59,7 @@ function NotificationBell({ darkMode, currentUser }) {
             await notificationAPI.markAsRead(notificationId);
             // Update local state
             setNotifications(notifications.map(n =>
-                n.notificationId === notificationId ? { ...n, read: true } : n
+                n.notificationId === notificationId ? { ...n, isRead: true } : n
             ));
             // Update unread count
             fetchUnreadCount();
@@ -73,8 +73,8 @@ function NotificationBell({ darkMode, currentUser }) {
             <button
                 onClick={() => setShowPanel(!showPanel)}
                 className={`relative p-2 rounded-lg transition-all ${darkMode
-                        ? 'hover:bg-gray-700 text-white'
-                        : 'hover:bg-gray-100 text-gray-600'
+                    ? 'hover:bg-gray-700 text-white'
+                    : 'hover:bg-gray-100 text-gray-600'
                     }`}
                 aria-label="Notifications"
             >
