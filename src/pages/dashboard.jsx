@@ -232,6 +232,7 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                         type="date"
                                                         value={dueDate}
                                                         onChange={(e) => setDueDate(e.target.value)}
+                                                        style={{ colorScheme: darkMode ? 'dark' : 'light' }}
                                                         className={`w-full px-3 py-2 rounded-lg ${darkMode
                                                             ? 'bg-gray-700 text-white border-gray-600'
                                                             : 'bg-white text-gray-900 border-gray-300'
@@ -246,6 +247,7 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                         type="time"
                                                         value={dueTime}
                                                         onChange={(e) => setDueTime(e.target.value)}
+                                                        style={{ colorScheme: darkMode ? 'dark' : 'light' }}
                                                         className={`w-full px-3 py-2 rounded-lg ${darkMode
                                                             ? 'bg-gray-700 text-white border-gray-600'
                                                             : 'bg-white text-gray-900 border-gray-300'
