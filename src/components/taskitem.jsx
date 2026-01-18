@@ -82,13 +82,13 @@ function TaskItem({ task, darkMode, onToggle, onDelete, onUpdate }) {
                             {task.dueDateTime && (
                                 <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     Due: {new Date(task.dueDateTime).toLocaleString('en-US', {
+                                        day: '2-digit',
                                         month: 'short',
-                                        day: 'numeric',
                                         year: 'numeric',
                                         hour: 'numeric',
                                         minute: '2-digit',
                                         hour12: true
-                                    })}
+                                    }).replace(',', ' at')}
                                 </div>
                             )}
                         </div>

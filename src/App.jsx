@@ -61,25 +61,36 @@ function App() {
         // Send email for each new notification
         for (const notification of newNotifications) {
           try {
-            // Format the due time from the notification message
+            // Extract task title from notification message
+            // Message format: "Reminder: Task 'Title' is due in X minutes" or "Task 'Title' is due now!"
+            let taskTitle = '';
+            const match = notification.message.match(/Task '([^']+)'/);
+            if (match) {
+              taskTitle = match[1];
+            } else {
+              taskTitle = notification.message;
+            }
+
+            // Format the due time
             const dueTime = new Date().toLocaleString('en-US', {
-              hour: 'numeric',
-              minute: 'numeric',
-              day: 'numeric',
+              day: '2-digit',
               month: 'short',
-              year: 'numeric'
-            });
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true
+            }).replace(',', ' at');
 
             await emailService.sendTaskReminderEmail(
               currentUser.email,
               currentUser.name,
-              notification.message,
+              taskTitle,
               dueTime
             );
 
             // Mark as sent
             sentEmails.push(notification.notificationId);
-            console.log(`Email sent for notification: ${notification.message}`);
+            console.log(`Email sent for task: ${taskTitle}`);
           } catch (error) {
             console.error('Failed to send email:', error);
           }
