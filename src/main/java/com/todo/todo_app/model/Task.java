@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "tasks")
@@ -23,12 +25,12 @@ public class Task {
 
     // Notification fields
     private LocalDateTime dueDateTime;
-    
+
     @Enumerated(EnumType.STRING)
     private ReminderType reminderType;
-    
+
     private Integer customReminderMinutes;
-    
+
     private LocalDateTime lastNotificationSent;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,8 +40,10 @@ public class Task {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        ZoneId istZone = ZoneId.of("Asia/Kolkata");
+        ZonedDateTime nowIST = ZonedDateTime.now(istZone);
+        createdAt = nowIST.toLocalDateTime();
+        updatedAt = nowIST.toLocalDateTime();
     }
 
     public enum ReminderType {
