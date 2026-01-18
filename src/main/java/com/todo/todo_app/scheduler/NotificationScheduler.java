@@ -72,7 +72,8 @@ public class NotificationScheduler {
             System.out.println("  Reminder notification sent: " + reminderSent);
             System.out.println("  Due notification sent: " + dueSent);
 
-            // Send REMINDER notification (both in-app and email) if we're at or past reminder time (but before due time)
+            // Send REMINDER notification (both in-app and email) if we're at or past
+            // reminder time (but before due time)
             if (!reminderSent && (now.isEqual(reminderTime) || now.isAfter(reminderTime))
                     && now.isBefore(dueDateTime)) {
                 long minutesUntilDue = ChronoUnit.MINUTES.between(now, dueDateTime);
@@ -104,7 +105,7 @@ public class NotificationScheduler {
             }
 
             // Send DUE notification (both email and in-app) if we're at or past due time
-            if (!dueSent && (now.isEqual(dueDateTime) || now.isAfter(dueDateTime))) {
+            if (!dueSent && !now.isBefore(dueDateTime)) {
                 String message = String.format("Task '%s' is due now!", task.getTitle());
 
                 System.out.println("  ✓ Sending DUE notification (in-app + email): " + message);
