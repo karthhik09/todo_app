@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserUserId(Long userId);
-    
-    @Query("SELECT t FROM Task t WHERE t.dueDateTime IS NOT NULL AND t.dueDateTime > :now")
+
+    @Query("SELECT t FROM Task t WHERE t.dueDateTime IS NOT NULL AND t.dueDateTime >= :now")
     List<Task> findTasksWithDueDates(LocalDateTime now);
 }
