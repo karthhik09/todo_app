@@ -193,48 +193,21 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                                         <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                                             Appearance
                                         </h3>
-                                        <div className="space-y-3">
-                                            <label className={`flex items-center p-4 rounded-lg cursor-pointer transition-colors ${!darkMode
-                                                ? 'bg-blue-50 border-2 border-blue-500'
-                                                : 'bg-gray-700 border-2 border-transparent hover:border-gray-600'
-                                                }`}>
-                                                <input
-                                                    type="radio"
-                                                    name="theme"
-                                                    checked={!darkMode}
-                                                    onChange={() => setDarkMode(false)}
-                                                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                                                />
-                                                <div className="ml-3">
-                                                    <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                                        Light Mode
-                                                    </div>
-                                                    <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                        Clean and bright interface
-                                                    </div>
-                                                </div>
+                                        <div>
+                                            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                                Theme
                                             </label>
-
-                                            <label className={`flex items-center p-4 rounded-lg cursor-pointer transition-colors ${darkMode
-                                                ? 'bg-gray-700 border-2 border-blue-500'
-                                                : 'bg-gray-100 border-2 border-transparent hover:border-gray-300'
-                                                }`}>
-                                                <input
-                                                    type="radio"
-                                                    name="theme"
-                                                    checked={darkMode}
-                                                    onChange={() => setDarkMode(true)}
-                                                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                                                />
-                                                <div className="ml-3">
-                                                    <div className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                                        Dark Mode
-                                                    </div>
-                                                    <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                        Easy on the eyes
-                                                    </div>
-                                                </div>
-                                            </label>
+                                            <select
+                                                value={darkMode ? 'dark' : 'light'}
+                                                onChange={(e) => setDarkMode(e.target.value === 'dark')}
+                                                className={`w-full px-4 py-3 rounded-lg transition-all ${darkMode
+                                                        ? 'bg-gray-700 text-white border-gray-600'
+                                                        : 'bg-gray-100 text-gray-900 border-gray-300'
+                                                    } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                            >
+                                                <option value="light">Light Mode - Clean and bright interface</option>
+                                                <option value="dark">Dark Mode - Easy on the eyes</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>

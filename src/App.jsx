@@ -18,6 +18,19 @@ function App() {
     emailService.init();
   }, []);
 
+  // Load theme preference from localStorage on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme !== null) {
+      setDarkMode(savedTheme === 'true');
+    }
+  }, []);
+
+  // Save theme preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('darkMode', darkMode.toString());
+  }, [darkMode]);
+
   // Check for existing user session on mount
   useEffect(() => {
     const storedUser = localStorage.getItem('currentUser');

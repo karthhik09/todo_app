@@ -18,8 +18,7 @@ export const emailService = {
                 to_email: userEmail,
                 to_name: userName,
                 task_title: taskTitle,
-                due_time: dueTime,
-                app_name: 'ToDo App'
+                due_time: dueTime
             };
 
             const response = await emailjs.send(
