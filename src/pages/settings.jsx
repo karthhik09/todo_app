@@ -201,12 +201,12 @@ function SettingsPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSideb
                                                 value={darkMode ? 'dark' : 'light'}
                                                 onChange={(e) => setDarkMode(e.target.value === 'dark')}
                                                 className={`w-full px-4 py-3 rounded-lg transition-all ${darkMode
-                                                        ? 'bg-gray-700 text-white border-gray-600'
-                                                        : 'bg-gray-100 text-gray-900 border-gray-300'
+                                                    ? 'bg-gray-700 text-white border-gray-600'
+                                                    : 'bg-gray-100 text-gray-900 border-gray-300'
                                                     } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                             >
-                                                <option value="light">Light Mode - Clean and bright interface</option>
-                                                <option value="dark">Dark Mode - Easy on the eyes</option>
+                                                <option value="light"> Light Mode </option>
+                                                <option value="dark"> Dark Mode </option>
                                             </select>
                                         </div>
                                     </div>
