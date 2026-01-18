@@ -5,7 +5,7 @@ import Footer from '../components/footer';
 import TaskList from '../components/tasklist';
 import useGreeting from '../hooks/greetings';
 import { tasksAPI } from '../services/api';
-import { IoTimeOutline } from 'react-icons/io5';
+import { LuAlarmClock } from 'react-icons/lu';
 
 function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSidebarOpen, currentUser }) {
     const [tasks, setTasks] = useState([]);
@@ -208,7 +208,7 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                 }`}
                                             aria-label="Set reminder"
                                         >
-                                            {showReminderFields ? '−' : <IoTimeOutline className="text-xl" />}
+                                            {showReminderFields ? '−' : <LuAlarmClock className="text-xl" />}
                                         </button>
                                         <button
                                             onClick={addTask}
