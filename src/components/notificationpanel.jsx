@@ -19,8 +19,13 @@ function NotificationPanel({ darkMode, notifications, onClose, onDelete, onMarkA
 
     const formatTime = (timestamp) => {
         try {
-            return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
+            // Backend sends LocalDateTime in IST (Asia/Kolkata timezone)
+            // We need to append the timezone offset to parse it correctly
+            // IST is UTC+5:30
+            const istTimestamp = timestamp.includes('+') ? timestamp : `${timestamp}+05:30`;
+            return formatDistanceToNow(new Date(istTimestamp), { addSuffix: true });
         } catch (error) {
+            console.error('Error formatting timestamp:', error);
             return 'recently';
         }
     };
