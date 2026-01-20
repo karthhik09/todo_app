@@ -19,8 +19,6 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
     const [showReminderFields, setShowReminderFields] = useState(false);
     const [dueDate, setDueDate] = useState('');
     const [dueTime, setDueTime] = useState('');
-    const [reminderType, setReminderType] = useState('FIFTEEN_MINUTES');
-    const [customReminderMinutes, setCustomReminderMinutes] = useState(30);
     const greeting = useGreeting();
 
     // Fetch tasks from backend on component mount
@@ -60,17 +58,18 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                     userId: currentUser?.userId
                 };
 
-                // Add reminder fields if due date is set
+                // Add due date/time if set
                 if (dueDate && dueTime) {
                     const dueDateTimeStr = `${dueDate}T${dueTime}`;
                     taskData.dueDateTime = dueDateTimeStr;
-                    taskData.reminderType = reminderType;
-                    if (reminderType === 'CUSTOM') {
-                        taskData.customReminderMinutes = customReminderMinutes || 30;
-                    }
                 }
 
-                const task = await tasksAPI.addTask(taskData.title, taskData.status, taskData.userId, taskData.dueDateTime, taskData.reminderType, taskData.customReminderMinutes);
+                const task = await tasksAPI.addTask(
+                    taskData.title,
+                    taskData.status,
+                    taskData.userId,
+                    taskData.dueDateTime
+                );
                 console.log('Task added successfully:', task);
 
                 // Add new task to the list
@@ -109,8 +108,6 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                 setNewTask('');
                 setDueDate('');
                 setDueTime('');
-                setReminderType('FIFTEEN_MINUTES');
-                setCustomReminderMinutes(30);
                 setShowReminderFields(false);
             } catch (error) {
                 console.error('Error adding task:', error);
@@ -217,6 +214,8 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                     <div className="flex flex-col sm:flex-row gap-4">
                                         <input
                                             type="text"
+                                            id="task-input"
+                                            name="task"
                                             placeholder="Type your task here.."
                                             value={newTask}
                                             onChange={(e) => setNewTask(e.target.value)}
@@ -257,6 +256,8 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                     </label>
                                                     <input
                                                         type="date"
+                                                        id="due-date"
+                                                        name="dueDate"
                                                         value={dueDate}
                                                         onChange={(e) => setDueDate(e.target.value)}
                                                         min={new Date().toISOString().split('T')[0]}
@@ -273,6 +274,8 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                     </label>
                                                     <input
                                                         type="time"
+                                                        id="due-time"
+                                                        name="dueTime"
                                                         value={dueTime}
                                                         onChange={(e) => setDueTime(e.target.value)}
                                                         style={{ colorScheme: darkMode ? 'dark' : 'light' }}
@@ -282,40 +285,6 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                             } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                                     />
                                                 </div>
-                                                <div>
-                                                    <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                        Remind Me
-                                                    </label>
-                                                    <select
-                                                        value={reminderType}
-                                                        onChange={(e) => setReminderType(e.target.value)}
-                                                        className={`w-full px-3 py-2 rounded-lg ${darkMode
-                                                            ? 'bg-gray-700 text-white border-gray-600'
-                                                            : 'bg-white text-gray-900 border-gray-300'
-                                                            } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                                    >
-                                                        <option value="FIFTEEN_MINUTES">15 minutes before</option>
-                                                        <option value="ONE_HOUR">1 hour before</option>
-                                                        <option value="CUSTOM">Custom</option>
-                                                    </select>
-                                                </div>
-                                                {reminderType === 'CUSTOM' && (
-                                                    <div>
-                                                        <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                                            Minutes Before
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            value={customReminderMinutes}
-                                                            onChange={(e) => setCustomReminderMinutes(parseInt(e.target.value) || 30)}
-                                                            min="1"
-                                                            className={`w-full px-3 py-2 rounded-lg ${darkMode
-                                                                ? 'bg-gray-700 text-white border-gray-600'
-                                                                : 'bg-white text-gray-900 border-gray-300'
-                                                                } border focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                                        />
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     )}
