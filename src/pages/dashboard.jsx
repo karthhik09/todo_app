@@ -259,6 +259,7 @@ function DashboardPage({ darkMode, setDarkMode, onNavigate, sidebarOpen, setSide
                                                         type="date"
                                                         value={dueDate}
                                                         onChange={(e) => setDueDate(e.target.value)}
+                                                        min={new Date().toISOString().split('T')[0]}
                                                         style={{ colorScheme: darkMode ? 'dark' : 'light' }}
                                                         className={`w-full px-3 py-2 rounded-lg ${darkMode
                                                             ? 'bg-gray-700 text-white border-gray-600'
